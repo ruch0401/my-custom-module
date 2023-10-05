@@ -1,0 +1,42 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>aws-releases</id>
+      <username>${S3_REPO_ACCESS_KEY}</username>
+      <password>${S3_REPO_SECRET_KEY}</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>aws</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>central</id>
+          <name>Central Repository</name>
+          <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+          <id>aws-releases</id>
+          <url>s3://${S3_REPO_BUCKET}/releases</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>aws-releases</id>
+          <url>s3://${S3_REPO_BUCKET}/releases</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <pluginGroups>
+    <pluginGroup>cloud.alpha</pluginGroup>
+  </pluginGroups>
+</settings>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>my-custom-library</artifactId>
+    <version>0.0.1</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <!--        https://maven.apache.org/maven-ci-friendly.html-->
+        <!--https://medium.com/outbrain-engineering/faster-release-with-maven-ci-friendly-versions-and-a-customised-flatten-plugin-fe53f0fcc0df-->
+        <!--https://stackoverflow.com/questions/52552329/use-maven-flatten-plugin-and-maven-shade-plugin-at-the-same-time-->
+        <revision>1.0</revision>
+        <!--https://stackoverflow.com/questions/5901378/what-exactly-is-a-maven-snapshot-and-why-do-we-need-it-->
+        <changelist>-SNAPSHOT</changelist>
+        <sha1/>
+        <alpha-web-remote-agent-spark-dist-file>spark-3.3.0-bin-hadoop3.3.3</alpha-web-remote-agent-spark-dist-file>
+        <alpha-web-remote-agent-spark-version>spark-3.3.0</alpha-web-remote-agent-spark-version>
+        <alpha-web-remote-agent-spark-dist>
+            https://archive.apache.org/dist/spark/${alpha-web-remote-agent-spark-version}/${alpha-web-remote-agent-spark-dist-file}.tgz
+        </alpha-web-remote-agent-spark-dist>
+        <alpha-core.version>${project.version}</alpha-core.version>
+        <alpha-deploy.version>${project.version}</alpha-deploy.version>
+        <alpha-deploy-mvn-version>2.0.4</alpha-deploy-mvn-version>
+        <alpha-web-core.version>${project.version}</alpha-web-core.version>
+        <alpha-spark-web.version>${project.version}</alpha-spark-web.version>
+        <alpha-spark-core.version>${project.version}</alpha-spark-core.version>
+        <aws-java-sdk-shaded.version>${project.version}</aws-java-sdk-shaded.version>
+        <typesafe.config.version>1.4.1</typesafe.config.version>
+
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <aws-sdk.version>1.12.382</aws-sdk.version>
+        <awsjavasdk.version>${aws-sdk.version}</awsjavasdk.version>
+
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scala.version>2.12.10</scala.version> <!--aligns with spark version-->
+        <scala.binary.version>2.12</scala.binary.version>
+        <release.plugin.version>2.5.3</release.plugin.version>
+        <jackson.api.version>2.10.1</jackson.api.version> <!--aligns with spark version-->
+        <jackson.version>2.10.1</jackson.version>
+        <jackson-databind.version>2.10.1</jackson-databind.version>
+        <log4j2.version>2.17.0</log4j2.version>
+        <junit.version>4.12</junit.version>
+        <liquibase.version>3.5.5</liquibase.version>
+
+        <LOCAL_DEV_PREFIX>localdev-</LOCAL_DEV_PREFIX>
+        <config.bucket>${LOCAL_DEV_PREFIX}AppManagementS3Bucket</config.bucket>
+        <deployment.bucket>${LOCAL_DEV_PREFIX}AppManagementS3Bucket</deployment.bucket>
+        <cdt.deployment.bucket>${LOCAL_DEV_PREFIX}AppManagementS3Bucket</cdt.deployment.bucket>
+        <repository.protocol>file:///</repository.protocol>
+        <forceOverwriteVersion>true</forceOverwriteVersion>
+
+        <!--Added the below properties to mock the maven extension in local build-->
+        <awsMavenExtension.groupId>junit</awsMavenExtension.groupId>
+        <awsMavenExtension.artifactId>junit</awsMavenExtension.artifactId>
+        <awsMavenExtension.version>4.11</awsMavenExtension.version>
+        <jersey.version>2.30.1</jersey.version>
+
+        <commons-lang3.version>3.10</commons-lang3.version> <!--aligns with spark version-->
+        <guice.version>5.0.1</guice.version>
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <jetty.version>9.4.43.v20210629</jetty.version>
+        <jetty.websocket.version>9.4.43.v20210629</jetty.websocket.version>
+
+        <!--        <scala-logging.version>3.4.0</scala-logging.version>-->
+        <scala-logging.version>2.1.2</scala-logging.version>
+        <spark.scala.version>2.12</spark.scala.version>
+        <spark.version>3.3.0</spark.version>
+        <commons-io.version>2.5</commons-io.version> <!--align with spark version-->
+        <jcommander.version>1.72</jcommander.version>
+        <nimbus-jose-jwt.version>5.9</nimbus-jose-jwt.version>
+        <deployment.bucket.releasesPath>releases</deployment.bucket.releasesPath>
+        <scala-maven-plugin.version>4.5.3</scala-maven-plugin.version>
+        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+        <jaxrs.version>2.1</jaxrs.version>
+        <aws-serverless-java.version>1.5.2</aws-serverless-java.version>
+        <commons.logging.version>1.1.3</commons.logging.version>
+        <!--
+        See the profile with id copyLocalM2ToRemoteRepo  in alpha-spark-web-with-proxy pom where the property below is set to false.
+        This is to activate a copy of the local m2 folder to a remote repository (in s3). So its activated in bitbucket custom pipeline (i.e. has to be run manually)
+        -->
+        <doNotUploadLocalM2Repo>true</doNotUploadLocalM2Repo>
+        <maven.version>3.8.1</maven.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-assembly</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>aws-releases</id>
+            <name>AWS Release Repository</name>
+            <url>${repository.protocol}${deployment.bucket}/${deployment.bucket.releasesPath}</url>
+        </repository>
+        <repository>
+            <id>aws-cdt-releases</id>
+            <name>AWS Release Repository</name>
+            <url>${repository.protocol}${cdt.deployment.bucket}/${deployment.bucket.releasesPath}</url>
+        </repository>
+        <repository>
+            <id>aws-snapshots</id>
+            <name>AWS Snapshot Repository</name>
+            <url>${repository.protocol}${deployment.bucket}/snapshots</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>aws-releases</id>
+            <url>${repository.protocol}${deployment.bucket}/${deployment.bucket.releasesPath}</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>aws-cdt-releases</id>
+            <url>${repository.protocol}${cdt.deployment.bucket}/${deployment.bucket.releasesPath}</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>aws-snapshots</id>
+            <name>AWS Snapshot Repository</name>
+            <url>${repository.protocol}${cdt.deployment.bucket}/snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>aws-releases</id>
+            <name>AWS Release Repository</name>
+            <!--<url>s3://${deployment.bucket}/releases</url>-->
+            <url>${repository.protocol}${deployment.bucket}/${deployment.bucket.releasesPath}</url>
+        </repository>
+        <snapshotRepository>
+            <id>aws-snapshots</id>
+            <name>AWS Snapshot Repository</name>
+            <url>${repository.protocol}${deployment.bucket}/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
